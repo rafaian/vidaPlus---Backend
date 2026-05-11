@@ -9,7 +9,7 @@ async function conectarBanco(){
 })
 
 await db.exec(`
-    CREAT TABLE IF NOT EXISTS pacientes (
+    CREATE TABLE IF NOT EXISTS pacientes (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         nome TEXT,
         idade INTEGER
