@@ -34,6 +34,66 @@ res.status(201).json({
     mensagem: "Paciente cadastrado com sucesso1!!"
 
     })
+
+// Buscar paciente (ID)::
+
+router.get("/pacientes/:id" , async (req, res) => {
+    
+    const db = await conectarBanco()
+
+    const {id} = req.params
+
+    const paciente = await db.get(
+        "SELECT * FROM pacientes WHERE id = ? ",
+        [id]
+    )
+
+    res.json(paciente)
+
+
+})
+
+// Atualizar paciente:
+
+router.put("/pacientes/:id", async (req, res) => {
+
+    const db = await conectarBanco()
+
+    const { id } = req.params
+
+    const { nome, idade, telefone } = req.body
+
+    await db.run(`
+        
+        UPDATE pacientes
+        SET nome = ?, idade = ?, telefone = ?
+        WHERE id = ?
+        
+        `,
+        [nome, idade, telefone, id]
+    )
+
+    res.json({
+        mensagem: "Paciente atualizado com sucesso!!!"
+    })
+})
+
+//Deletar paciente
+router.delete("/pacientes/:id", async (req, res) => {
+    const db = await conectarBanco()
+
+    const { id } = req.params
+
+    await db.run(
+        "DELETE FROM pacientes WHERE id= ?",
+        [id]
+    )
+    res.json({
+        mensagem: "Paciente removido com sucesso!!!"
+    })
+})
+
+
 })
 
 
