@@ -12,8 +12,8 @@ await db.exec(`
     CREATE TABLE IF NOT EXISTS pacientes (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         nome TEXT,
-        idade INTEGER
-        telefoe TEXT
+        idade INTEGER,
+        telefone TEXT
         )
     `)
 
