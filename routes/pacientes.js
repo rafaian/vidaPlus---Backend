@@ -21,19 +21,42 @@ router.post ("/pacientes", async (req, res) => {
     
     const db = await conectarBanco()
 
-    const {nome, idade, telefone} = req.body
-    await db.run(`
+    const { nome, idade, telefone } = req.body
+
+    // Validações:
+
+    if (!nome || nome.trim() === "") {
+        return res.status(400).json({
+            erro: "Nome é obrigatório"
+        })
+    }
+
+    if (!idade || idade <= 0 ){
+        return res.status(400).json({
+            erro: "Essa idade não é válida!"
+        })
+    }
+
+    if (!telefone || telefone.trim() === "" ){
+        return res.status(400).json({
+            erro: "Telefone é obrigatório"
+        })
+    }
+
+    await db.run(
+        `
         INSERT INTO pacientes (nome, idade, telefone)
         VALUES (?, ?, ?)
         `,
-    [nome, idade, telefone]
+        [nome, idade, telefone]
 
 )
 
 res.status(201).json({
-    mensagem: "Paciente cadastrado com sucesso1!!"
+    mensagem: `Paciente ${nome} cadastrado com sucesso!`
 
     })
+})
 
 // Buscar paciente (ID)::
 
@@ -93,8 +116,6 @@ router.delete("/pacientes/:id", async (req, res) => {
     })
 })
 
-
-})
 
 
 module.exports = router
