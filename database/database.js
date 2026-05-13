@@ -17,6 +17,17 @@ await db.exec(`
         )
     `)
 
+await db.exec(`
+    CREATE TABLE IF NOT EXISTS usuarios (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        nome TEXT,
+        email TEXT UNIQUE,
+        senha TEXT
+        )
+    
+    `)
+
+
     console.log("Banco funcionando!!")
 
     return db

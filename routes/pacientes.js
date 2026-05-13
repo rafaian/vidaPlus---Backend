@@ -24,10 +24,9 @@ router.post ("/pacientes", async (req, res) => {
     const { nome, idade, telefone } = req.body
 
     // Validações:
-
     if (!nome || nome.trim() === "") {
         return res.status(400).json({
-            erro: "Nome é obrigatório"
+            erro: "Nome é campo obrigatório"
         })
     }
 
@@ -111,8 +110,11 @@ router.delete("/pacientes/:id", async (req, res) => {
         "DELETE FROM pacientes WHERE id= ?",
         [id]
     )
+    
+    console.log(id)
+
     res.json({
-        mensagem: "Paciente removido com sucesso!!!"
+        mensagem: `Paciente ID: ${ id }, foi removido com sucesso!!!`
     })
 })
 
