@@ -9,16 +9,18 @@ const conectarBanco = require("../database/database")
 router.post("/usuarios", async (req, res) => {
     const db = await conectarBanco()
 
+    console.log(req.body)
+
     const { nome, email, senha } = req.body
 
     // Validações:
-    if (!nome ||nome.trim() === "") {
+    if (!nome || nome.trim() === "") {
         return res.status(400).json({
             erro: "Nome é campo obrigatório!"
         })
     }
     
-    if (!email ||email.trim() ===""){
+    if (!email || email.trim() ===""){
         return res.status(400).json({
             erro: "Email é campo obrigatório!"
         })
@@ -82,7 +84,7 @@ router.post("/login", async (req, res) => {
         usuario.senha
     )
     if(!senhaCorreta) {
-        return res.status(400).jason({
+        return res.status(400).json({
             erro: "Email ou senha inválidos"
         })
     }

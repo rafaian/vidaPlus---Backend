@@ -1,12 +1,13 @@
 const express = require("express")
 const router = express.Router()
+const verificarToken = require ("../middlewares/auth")
 
 const conectarBanco = require ("../database/database")
 
 
 //Lista de pacientes:
 
-router.get("/pacientes", async (req, res) => {
+router.get("/pacientes", verificarToken, async (req, res) => {
     const db = await conectarBanco()
 
     const pacientes = await db.all("SELECT * FROM pacientes")
