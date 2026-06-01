@@ -18,11 +18,13 @@ router.get("/pacientes", verificarToken, async (req, res) => {
 
 // Cadastrar pacientes:
 
-router.post ("/pacientes", async (req, res) => {
+router.post ("/pacientes", verificarToken, async (req, res) => {
     
     const db = await conectarBanco()
 
     const { nome, idade, telefone } = req.body
+
+    const usuario_id = req.usuario.id
 
     // Validações:
     if (!nome || nome.trim() === "") {
@@ -45,10 +47,10 @@ router.post ("/pacientes", async (req, res) => {
 
     await db.run(
         `
-        INSERT INTO pacientes (nome, idade, telefone)
-        VALUES (?, ?, ?)
+        INSERT INTO pacientes (nome, idade, telefone, usuario_id)
+        VALUES (?, ?, ?, ?)
         `,
-        [nome, idade, telefone]
+        [nome, idade, telefone, usuario_id]
 
 )
 
@@ -60,15 +62,15 @@ res.status(201).json({
 
 // Buscar paciente (ID)::
 
-router.get("/pacientes/:id" , async (req, res) => {
+router.get("/pacientes/:id", async (req, res) => {
     
     const db = await conectarBanco()
 
     const {id} = req.params
 
     const paciente = await db.get(
-        "SELECT * FROM pacientes WHERE id = ? ",
-        [id]
+        "SELECT * FROM pacientes WHERE usuario_id = ? ",
+        [req.usuario.id]
     )
 
     res.json(paciente)
@@ -78,7 +80,7 @@ router.get("/pacientes/:id" , async (req, res) => {
 
 // Atualizar paciente:
 
-router.put("/pacientes/:id", async (req, res) => {
+router.put("/pacientes/:id", verificarToken, async (req, res) => {
 
     const db = await conectarBanco()
 
@@ -102,7 +104,7 @@ router.put("/pacientes/:id", async (req, res) => {
 })
 
 //Deletar paciente
-router.delete("/pacientes/:id", async (req, res) => {
+router.delete("/pacientes/:id", verificarToken, async (req, res) => {
     const db = await conectarBanco()
 
     const { id } = req.params

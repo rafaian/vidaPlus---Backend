@@ -13,7 +13,8 @@ await db.exec(`
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         nome TEXT,
         idade INTEGER,
-        telefone TEXT
+        telefone TEXT,
+        usuario_id INTEGER
         )
     `)
 
@@ -26,6 +27,19 @@ await db.exec(`
         )
     
     `)
+    
+    await db.exec(`
+        CREATE TABLE IF NOT EXISTS medicos (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        nome TEXT,
+        especialidade TEXT,
+        crm TEXT UNIQUE,
+        telefone TEXT,
+        usuario_id INTEGER
+        )
+        
+        `)
+
 
 
     console.log("Banco funcionando!!")
