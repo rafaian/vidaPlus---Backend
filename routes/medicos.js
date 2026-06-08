@@ -4,7 +4,6 @@ const router = express.Router()
 const conectarBanco = require("../database/database")
 const verificarToken = require("../middlewares/auth")
 
-module.exports = router
 
 // cadastrar medicos
 router.post("/medicos", verificarToken, async (req, res) => {
@@ -13,12 +12,15 @@ router.post("/medicos", verificarToken, async (req, res) => {
 
     const {nome, especialidade, crm, telefone} = req.body
 
-    const usuario_id = req.usuario.usuario_id
+    const usuario_id = req.usuario.id
+
+    console.log("USUARIO LOGADO:", req.usuario)
+    console.log("USUARIO ID:", usuario_id)
 
     await db.run(
         `
         INSERT INTO medicos
-        (nome, especialidade, crm, telefone, ususario_id)
+        (nome, especialidade, crm, telefone, usuario_id)
         VALUES (?, ?, ?, ?, ?)
         `,
         [nome, especialidade, crm, telefone, usuario_id]
@@ -44,6 +46,8 @@ router.get("/medicos", verificarToken, async (req, res) => {
 
 // Buscar médico:
 router.get("/medicos/:id", verificarToken, async (req, res) => {
+
+    console.log("USUARIO LOGADO:", req.usuario)
 
     const db = await conectarBanco()
 
@@ -99,3 +103,5 @@ router.delete("/medicos/:id", verificarToken, async (req, res) => {
     })
 })
 
+
+module.exports = router
