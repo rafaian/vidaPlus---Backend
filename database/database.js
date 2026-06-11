@@ -40,7 +40,20 @@ await db.exec(`
         
         `)
 
+    await db.exec(`
+        CREATE TABLE IF NOT EXISTS consultas(
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            data TEXT,
+            hora TEXT,
+            observacoes TEXT,
+            paciente_id INTEGER,
+            medico_id INTEGER,
+            usuario_id INTEGER,
 
+            FOREIGN KEY (paciente_id) REFERENCES pacientes(id),
+            FOREIGN KEY (medico_id) REFERENCES medicos(id)
+        )
+        `)
 
     console.log("Banco funcionando!!")
 
