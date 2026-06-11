@@ -58,8 +58,14 @@ router.get("/medicos/:id", verificarToken, async (req, res) => {
         [id, req.usuario.id]
     )
 
-    res.json(medico)
+    if (!medico) {
+        return res.status(404).json({
+            erro: "Médico não encontrado"
+        })
+    }
+    
 
+    res.json(medico)
 })
 
 // Atualizar medico:
@@ -70,12 +76,15 @@ router.put("/medicos/:id", verificarToken, async (req, res) => {
 
     const { id } = req.params
     const {nome, especialidade, crm, telefone} = req.body
+
+    console.log("ID PARAM:", id)
+    console.log("USUARIO LOGADO:", req.usuario)
+
     await db.run(
         `
         UPDATE medicos
         SET nome = ?, especialidade = ?, crm = ?, telefone = ?
         WHERE id = ? AND usuario_id = ?
-        
         `,
         [nome, especialidade, crm, telefone, id, req.usuario.id]
 
@@ -101,7 +110,7 @@ router.delete("/medicos/:id", verificarToken, async (req, res) => {
     res.json({
         mensagem: `Médico ${id} removido com sucesso!!!`
     })
+    
+    
 })
-
-
 module.exports = router
