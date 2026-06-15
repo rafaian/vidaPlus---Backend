@@ -77,4 +77,68 @@ router.get("/consultas/:id", verificarToken, async(req, res) => {
     res.json(consulta)
 })
 
+// Atualizar consulta por id:
+router.put("/consultas/:id", verificarToken, async(req, res) => {
+    const db = await conectarBanco()
+
+    const { id } = req.params
+    
+    const {
+        data,
+        hora,
+        observacoes,
+        paciente_id,
+        medico_id
+    } = req.body
+
+    await db.run(
+        `
+        UPDATE consultas
+        SET
+            data = ?,
+            hora = ?,
+            observacoes = ?,
+            paciente_id = ?,
+            medico_id = ?
+        WHERE id = ? AND usuario_id = ?    
+    `,
+    [
+        data,
+        hora,
+        observacoes,
+        paciente_id,
+        medico_id,
+        id,
+        req.usuario.id
+    ]
+)
+
+res.json({
+    mensagem: "Consulta atualizada com sucesso!!!"
+    })
+})
+
+// Deletando consultas:
+router.delete("/consultas/:id", verificarToken, async(req, res) => {
+
+    const db = await conectarBanco()
+
+    const { id } = req.params
+
+    const resultado = await db.run(
+        "DELETE FROM consultas WHERE id = ? AND usuario_id = ?",
+
+        [id, req.usuario.id]
+    )
+    if (resultado.changes === 0) {
+       return res.status(404).json({
+        erro: "Consulta não encontrada"
+       })
+    }
+    
+    res.json({
+        mensagem:`Consulta ${id} removida com sucesso!!!`
+    })
+})
+
 module.exports = router
