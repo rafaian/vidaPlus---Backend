@@ -79,10 +79,13 @@ router.get("/consultas/:id", verificarToken, async(req, res) => {
 
 // Atualizar consulta por id:
 router.put("/consultas/:id", verificarToken, async(req, res) => {
+   
     const db = await conectarBanco()
 
     const { id } = req.params
     
+    console.log(req.body)
+
     const {
         data,
         hora,
@@ -91,7 +94,7 @@ router.put("/consultas/:id", verificarToken, async(req, res) => {
         medico_id
     } = req.body
 
-    await db.run(
+    const resultado = await db.run(
         `
         UPDATE consultas
         SET
@@ -112,6 +115,11 @@ router.put("/consultas/:id", verificarToken, async(req, res) => {
         req.usuario.id
     ]
 )
+if (resultado.changes === 0) {
+    return res.status(404).json({
+        erro: "Consulta não encontrada!!!"
+    })
+}
 
 res.json({
     mensagem: "Consulta atualizada com sucesso!!!"
