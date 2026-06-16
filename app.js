@@ -10,6 +10,7 @@ const pacientesRoutes = require("./routes/pacientes")
 const usuariosRoutes = require("./routes/usuarios")
 const medicosRoutes = require("./routes/medicos")
 const consultasRoutes = require("./routes/consultas")
+const prontuariosRoutes = require("./routes/prontuarios")
 
 
 const app = express()
@@ -20,7 +21,7 @@ app.use(pacientesRoutes)
 app.use(usuariosRoutes)
 app.use(medicosRoutes)
 app.use(consultasRoutes)
-
+app.use(prontuariosRoutes)
 
 conectarBanco()
 

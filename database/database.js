@@ -55,9 +55,23 @@ await db.exec(`
         )
         `)
 
-    console.log("Banco funcionando!!")
+        await db.exec(`
+            CREATE TABLE IF NOT EXISTS prontuarios(
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            diagnostico TEXT,
+            tratamento TEXT,
+            medicamento TEXT,
+            paciente_id INTEGER,
+            usuario_id INTEGER,
 
-    return db
-}
-
-module.exports = conectarBanco
+            FOREIGN KEY (paciente_id) REFERENCES pacientes(id),
+            FOREIGN KEY (usuario_id) REFERENCES usuarios(id)
+            )
+        `)
+        
+        console.log("Banco funcionando!!")
+    
+        
+        return db
+    }
+    module.exports = conectarBanco
