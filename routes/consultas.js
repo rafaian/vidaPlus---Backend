@@ -71,7 +71,7 @@ router.get("/consultas/:id", verificarToken, async(req, res) => {
 
     if (!consulta) {
         return res.status(404).json({
-            erro: "Consulta não encontrada"
+            erro: "Consulta não encontrada!!!"
         })
     }
     res.json(consulta)
@@ -140,13 +140,13 @@ router.delete("/consultas/:id", verificarToken, async(req, res) => {
     )
     if (resultado.changes === 0) {
        return res.status(404).json({
-        erro: "Consulta não encontrada"
+        erro: "Consulta não encontrada!!!"
        })
+       
     }
-    
-    res.json({
-        mensagem:`Consulta ${id} removida com sucesso!!!`
-    })
+       res.json({
+           mensagem:`Consulta ${id} removida com sucesso!!!`
+        })
 })
 
 module.exports = router
