@@ -1,16 +1,16 @@
 const express = require("express")
 const router = express.Router()
-const verificarToken = require ("../middlewares/auth")
+const verificarToken = require("../middlewares/auth")
 
-const conectarBanco = require ("../database/database")
+const conectarBanco = require("../database/database")
 
-
-//Lista de pacientes:
+// Listar pacientes
 router.get("/pacientes", verificarToken, async (req, res) => {
 
     const db = await conectarBanco()
 
-    const pacientes = await db.all("SELECT * FROM pacientes WHERE usuario_id = ?",
+    const pacientes = await db.all(
+        "SELECT * FROM pacientes WHERE usuario_id = ?",
         [req.usuario.id]
     )
 
@@ -18,31 +18,31 @@ router.get("/pacientes", verificarToken, async (req, res) => {
 
 })
 
-// Cadastrar pacientes:
-router.post ("/pacientes", verificarToken, async (req, res) => {
-    
+// Cadastrar pacientes
+router.post("/pacientes", verificarToken, async (req, res) => {
+
     const db = await conectarBanco()
 
     const { nome, idade, telefone } = req.body
 
     const usuario_id = req.usuario.id
 
-    // Validações:
+    // Validações
     if (!nome || nome.trim() === "") {
         return res.status(400).json({
-            erro: "Nome é campo obrigatório"
+            erro: "Nome é campo obrigatório!"
         })
     }
 
-    if (!idade || idade <= 0 ){
+    if (!idade || idade <= 0) {
         return res.status(400).json({
             erro: "Essa idade não é válida!"
         })
     }
 
-    if (!telefone || telefone.trim() === "" ){
+    if (!telefone || telefone.trim() === "") {
         return res.status(400).json({
-            erro: "Telefone é obrigatório"
+            erro: "Telefone é obrigatório!"
         })
     }
 
@@ -52,41 +52,37 @@ router.post ("/pacientes", verificarToken, async (req, res) => {
         VALUES (?, ?, ?, ?)
         `,
         [nome, idade, telefone, usuario_id]
+    )
 
-)
-
-res.status(201).json({
-    mensagem: `Paciente ${nome} cadastrado com sucesso!`
-
+    res.status(201).json({
+        mensagem: `Paciente ${nome} cadastrado com sucesso!`
     })
+
 })
 
-// Buscar paciente (ID)::
+// Buscar paciente por ID
+router.get("/pacientes/:id", verificarToken, async (req, res) => {
 
-router.get("/pacientes/:id",  verificarToken, async (req, res) => {
-    
     const db = await conectarBanco()
 
-    const {id} = req.params
+    const { id } = req.params
 
     const paciente = await db.get(
-        "SELECT * FROM pacientes WHERE id =? AND usuario_id = ? ",
+        "SELECT * FROM pacientes WHERE id = ? AND usuario_id = ?",
         [id, req.usuario.id]
     )
-    
+
     if (!paciente) {
         return res.status(404).json({
-            erro: "Paciente não encontrado!!!"
+            erro: "Paciente não encontrado!"
         })
     }
 
     res.json(paciente)
 
-
 })
 
-// Atualizar paciente:
-
+// Atualizar paciente
 router.put("/pacientes/:id", verificarToken, async (req, res) => {
 
     const db = await conectarBanco()
@@ -95,29 +91,39 @@ router.put("/pacientes/:id", verificarToken, async (req, res) => {
 
     const { nome, idade, telefone } = req.body
 
-    await db.run(`
-        
+    const resultado = await db.run(
+        `
         UPDATE pacientes
-        SET nome = ?, idade = ?, telefone = ?
-        WHERE id = ? AND usuario_id = ? 
-        
+        SET
+            nome = ?,
+            idade = ?,
+            telefone = ?
+        WHERE id = ? AND usuario_id = ?
         `,
         [
-            nome, 
-            idade, 
-            telefone, 
+            nome,
+            idade,
+            telefone,
             id,
             req.usuario.id
         ]
     )
 
+    if (resultado.changes === 0) {
+        return res.status(404).json({
+            erro: "Paciente não encontrado!"
+        })
+    }
+
     res.json({
         mensagem: "Paciente atualizado com sucesso!!!"
     })
+
 })
 
-//Deletar paciente
+// Deletar paciente
 router.delete("/pacientes/:id", verificarToken, async (req, res) => {
+
     const db = await conectarBanco()
 
     const { id } = req.params
@@ -125,19 +131,18 @@ router.delete("/pacientes/:id", verificarToken, async (req, res) => {
     const resultado = await db.run(
         "DELETE FROM pacientes WHERE id = ? AND usuario_id = ?",
         [id, req.usuario.id]
-        )
+    )
 
-        if (resultado.changes === 0) {
-            return res.status(404).json({
-             erro: "Paciente não encontrado!"
+    if (resultado.changes === 0) {
+        return res.status(404).json({
+            erro: "Paciente não encontrado!"
         })
     }
 
     res.json({
         mensagem: `Paciente ${id} removido com sucesso!`
     })
+
 })
-
-
 
 module.exports = router

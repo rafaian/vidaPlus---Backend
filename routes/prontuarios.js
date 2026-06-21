@@ -4,8 +4,8 @@ const router = express.Router()
 const conectarBanco = require("../database/database")
 const verificarToken = require("../middlewares/auth")
 
-// Cadastrando prontuarios:
-router.post("/prontuarios", verificarToken, async(req, res) =>{
+// Cadastrar prontuário
+router.post("/prontuarios", verificarToken, async (req, res) => {
 
     const db = await conectarBanco()
 
@@ -17,62 +17,90 @@ router.post("/prontuarios", verificarToken, async(req, res) =>{
     } = req.body
 
     const usuario_id = req.usuario.id
-    
+
+    if (!diagnostico || diagnostico.trim() === "") {
+        return res.status(400).json({
+            erro: "Diagnóstico é obrigatório!"
+        })
+    }
+
+    if (!tratamento || tratamento.trim() === "") {
+        return res.status(400).json({
+            erro: "Tratamento é obrigatório!"
+        })
+    }
+
+    if (!medicamento || medicamento.trim() === "") {
+        return res.status(400).json({
+            erro: "Medicamento é obrigatório!"
+        })
+    }
+
+    if (!paciente_id) {
+        return res.status(400).json({
+            erro: "Paciente é obrigatório!"
+        })
+    }
+
     await db.run(
         `
         INSERT INTO prontuarios
         (diagnostico, tratamento, medicamento, paciente_id, usuario_id)
         VALUES (?, ?, ?, ?, ?)
-        
         `,
-    [
-        diagnostico,
-        tratamento,
-        medicamento,
-        paciente_id,
-        usuario_id
-    ]
-)
+        [
+            diagnostico,
+            tratamento,
+            medicamento,
+            paciente_id,
+            usuario_id
+        ]
+    )
 
-res.status(201).json({
-    mensagem: "Prontuário cadastrado com sucesso!!!"
+    res.status(201).json({
+        mensagem: "Prontuário cadastrado com sucesso!"
+    })
+
 })
 
-})
-// Buscando todos prontuarios:
-router.get("/prontuarios/", verificarToken, async(req, res) =>{
+// Listar prontuários
+router.get("/prontuarios", verificarToken, async (req, res) => {
 
     const db = await conectarBanco()
 
-    const prontuarios = await db.all (
+    const prontuarios = await db.all(
         "SELECT * FROM prontuarios WHERE usuario_id = ?",
         [req.usuario.id]
     )
+
     res.json(prontuarios)
 
-} )
-// Buscando prontuario por id:
-router.get("/prontuarios/:id", verificarToken, async(req, res) => {
+})
+
+// Buscar prontuário por ID
+router.get("/prontuarios/:id", verificarToken, async (req, res) => {
 
     const db = await conectarBanco()
 
     const { id } = req.params
-    
+
     const prontuario = await db.get(
         "SELECT * FROM prontuarios WHERE id = ? AND usuario_id = ?",
         [id, req.usuario.id]
     )
-    if(!prontuario) {
+
+    if (!prontuario) {
         return res.status(404).json({
-            erro: "Prontuário inexistente!!!"
+            erro: "Prontuário não encontrado!"
         })
     }
 
     res.json(prontuario)
+
 })
 
-// Atualizando pronturario por id:
-router.put("/prontuarios/:id", verificarToken, async(req, res) => {
+// Atualizar prontuário
+router.put("/prontuarios/:id", verificarToken, async (req, res) => {
 
     const db = await conectarBanco()
 
@@ -82,9 +110,32 @@ router.put("/prontuarios/:id", verificarToken, async(req, res) => {
         diagnostico,
         tratamento,
         medicamento,
-        paciente_id,
-        medico_id
+        paciente_id
     } = req.body
+
+    if (!diagnostico || diagnostico.trim() === "") {
+        return res.status(400).json({
+            erro: "Diagnóstico é obrigatório!"
+        })
+    }
+
+    if (!tratamento || tratamento.trim() === "") {
+        return res.status(400).json({
+            erro: "Tratamento é obrigatório!"
+        })
+    }
+
+    if (!medicamento || medicamento.trim() === "") {
+        return res.status(400).json({
+            erro: "Medicamento é obrigatório!"
+        })
+    }
+
+    if (!paciente_id) {
+        return res.status(400).json({
+            erro: "Paciente é obrigatório!"
+        })
+    }
 
     const resultado = await db.run(
         `
@@ -101,25 +152,25 @@ router.put("/prontuarios/:id", verificarToken, async(req, res) => {
             tratamento,
             medicamento,
             paciente_id,
-            id, 
+            id,
             req.usuario.id
         ]
     )
 
-    if (resultado.changes === 0){
+    if (resultado.changes === 0) {
         return res.status(404).json({
-            erro: "Prontuário não encontrada!!!"
+            erro: "Prontuário não encontrado!"
         })
     }
 
     res.json({
-        mensagem: "Prontuário atualizada com sucesso!!!"
+        mensagem: "Prontuário atualizado com sucesso!"
     })
 
-
 })
-// Deletando prontuario:
-router.delete("/prontuarios/:id", verificarToken, async(req, res) =>{
+
+// Deletar prontuário
+router.delete("/prontuarios/:id", verificarToken, async (req, res) => {
 
     const db = await conectarBanco()
 
@@ -127,27 +178,19 @@ router.delete("/prontuarios/:id", verificarToken, async(req, res) =>{
 
     const resultado = await db.run(
         "DELETE FROM prontuarios WHERE id = ? AND usuario_id = ?",
-        
         [id, req.usuario.id]
     )
 
-    if (resultado.changes === 0){
+    if (resultado.changes === 0) {
         return res.status(404).json({
-            erro:"Prontuário não encontrado!!!"
+            erro: "Prontuário não encontrado!"
         })
-
     }
-        res.json({
-            mensagem:`Prontuário ${id} removido com sucesso!!!`
-        })
 
+    res.json({
+        mensagem: `Prontuário ${id} removido com sucesso!`
+    })
 
 })
 
-
-
-
-
-
 module.exports = router
-
