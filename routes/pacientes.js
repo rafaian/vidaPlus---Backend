@@ -6,18 +6,19 @@ const conectarBanco = require ("../database/database")
 
 
 //Lista de pacientes:
-
 router.get("/pacientes", verificarToken, async (req, res) => {
+
     const db = await conectarBanco()
 
-    const pacientes = await db.all("SELECT * FROM pacientes")
+    const pacientes = await db.all("SELECT * FROM pacientes WHERE usuario_id = ?",
+        [req.usuario.id]
+    )
 
     res.json(pacientes)
 
 })
 
 // Cadastrar pacientes:
-
 router.post ("/pacientes", verificarToken, async (req, res) => {
     
     const db = await conectarBanco()
@@ -62,16 +63,22 @@ res.status(201).json({
 
 // Buscar paciente (ID)::
 
-router.get("/pacientes/:id", async (req, res) => {
+router.get("/pacientes/:id",  verificarToken, async (req, res) => {
     
     const db = await conectarBanco()
 
     const {id} = req.params
 
     const paciente = await db.get(
-        "SELECT * FROM pacientes WHERE usuario_id = ? ",
-        [req.usuario.id]
+        "SELECT * FROM pacientes WHERE id =? AND usuario_id = ? ",
+        [id, req.usuario.id]
     )
+    
+    if (!paciente) {
+        return res.status(404).json({
+            erro: "Paciente não encontrado!!!"
+        })
+    }
 
     res.json(paciente)
 
@@ -92,10 +99,16 @@ router.put("/pacientes/:id", verificarToken, async (req, res) => {
         
         UPDATE pacientes
         SET nome = ?, idade = ?, telefone = ?
-        WHERE id = ?
+        WHERE id = ? AND usuario_id = ? 
         
         `,
-        [nome, idade, telefone, id]
+        [
+            nome, 
+            idade, 
+            telefone, 
+            id,
+            req.usuario.id
+        ]
     )
 
     res.json({
@@ -109,15 +122,19 @@ router.delete("/pacientes/:id", verificarToken, async (req, res) => {
 
     const { id } = req.params
 
-    await db.run(
-        "DELETE FROM pacientes WHERE id= ?",
-        [id]
-    )
-    
-    console.log(id)
+    const resultado = await db.run(
+        "DELETE FROM pacientes WHERE id = ? AND usuario_id = ?",
+        [id, req.usuario.id]
+        )
+
+        if (resultado.changes === 0) {
+            return res.status(404).json({
+             erro: "Paciente não encontrado!"
+        })
+    }
 
     res.json({
-        mensagem: `Paciente ID: ${ id }, foi removido com sucesso!!!`
+        mensagem: `Paciente ${id} removido com sucesso!`
     })
 })
 

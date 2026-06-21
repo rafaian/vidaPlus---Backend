@@ -138,6 +138,7 @@ router.delete("/consultas/:id", verificarToken, async(req, res) => {
 
         [id, req.usuario.id]
     )
+    
     if (resultado.changes === 0) {
        return res.status(404).json({
         erro: "Consulta não encontrada!!!"

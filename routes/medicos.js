@@ -4,18 +4,14 @@ const router = express.Router()
 const conectarBanco = require("../database/database")
 const verificarToken = require("../middlewares/auth")
 
-
-// cadastrar medicos
+// Cadastrar médicos
 router.post("/medicos", verificarToken, async (req, res) => {
 
     const db = await conectarBanco()
 
-    const {nome, especialidade, crm, telefone} = req.body
+    const { nome, especialidade, crm, telefone } = req.body
 
     const usuario_id = req.usuario.id
-
-    console.log("USUARIO LOGADO:", req.usuario)
-    console.log("USUARIO ID:", usuario_id)
 
     await db.run(
         `
@@ -23,7 +19,13 @@ router.post("/medicos", verificarToken, async (req, res) => {
         (nome, especialidade, crm, telefone, usuario_id)
         VALUES (?, ?, ?, ?, ?)
         `,
-        [nome, especialidade, crm, telefone, usuario_id]
+        [
+            nome, 
+            especialidade, 
+            crm, 
+            telefone, 
+            usuario_id
+        ]
     )
 
     res.status(201).json({
@@ -31,7 +33,7 @@ router.post("/medicos", verificarToken, async (req, res) => {
     })
 })
 
-// Listar medicos:
+// Listar médicos
 router.get("/medicos", verificarToken, async (req, res) => {
 
     const db = await conectarBanco()
@@ -44,10 +46,8 @@ router.get("/medicos", verificarToken, async (req, res) => {
     res.json(medicos)
 })
 
-// Buscar médico:
+// Buscar médico por ID
 router.get("/medicos/:id", verificarToken, async (req, res) => {
-
-    console.log("USUARIO LOGADO:", req.usuario)
 
     const db = await conectarBanco()
 
@@ -60,57 +60,76 @@ router.get("/medicos/:id", verificarToken, async (req, res) => {
 
     if (!medico) {
         return res.status(404).json({
-            erro: "Médico não encontrado"
+            erro: "Médico não encontrado!"
         })
     }
-    
 
     res.json(medico)
 })
 
-// Atualizar medico:
-
+// Atualizar médico
 router.put("/medicos/:id", verificarToken, async (req, res) => {
 
     const db = await conectarBanco()
 
     const { id } = req.params
-    const {nome, especialidade, crm, telefone} = req.body
 
-    console.log("ID PARAM:", id)
-    console.log("USUARIO LOGADO:", req.usuario)
+    const { nome, especialidade, crm, telefone } = req.body
 
-    await db.run(
+    const resultado = await db.run(
         `
         UPDATE medicos
-        SET nome = ?, especialidade = ?, crm = ?, telefone = ?
+        SET
+            nome = ?,
+            especialidade = ?,
+            crm = ?,
+            telefone = ?
         WHERE id = ? AND usuario_id = ?
         `,
-        [nome, especialidade, crm, telefone, id, req.usuario.id]
-
+        [
+            nome,
+            especialidade,
+            crm,
+            telefone,
+            id,
+            req.usuario.id
+        ]
     )
+
+    if (resultado.changes === 0) {
+        return res.status(404).json({
+            erro: "Médico não encontrado!"
+        })
+    }
 
     res.json({
         mensagem: "Médico atualizado com sucesso!!!"
     })
+
 })
 
-// Deletando medico:
+// Deletar médico
 router.delete("/medicos/:id", verificarToken, async (req, res) => {
-    
+
     const db = await conectarBanco()
-    
+
     const { id } = req.params
 
-    await db.run(
+    const resultado = await db.run(
         "DELETE FROM medicos WHERE id = ? AND usuario_id = ?",
         [id, req.usuario.id]
     )
 
+    if (resultado.changes === 0) {
+        return res.status(404).json({
+            erro: "Médico não encontrado!"
+        })
+    }
+
     res.json({
         mensagem: `Médico ${id} removido com sucesso!!!`
     })
-    
-    
+
 })
+
 module.exports = router
