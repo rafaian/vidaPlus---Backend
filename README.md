@@ -12,7 +12,7 @@ O VidaPlus é uma API REST desenvolvida para auxiliar no gerenciamento de clíni
 * JWT (JSON Web Token)
 * bcryptjs
 * dotenv
-* CORS
+* cors
 * Git e GitHub
 * Postman
 
@@ -60,7 +60,7 @@ O VidaPlus é uma API REST desenvolvida para auxiliar no gerenciamento de clíni
 Clone o repositório:
 
 ```bash
-git clone URL_DO_REPOSITORIO
+git clone https://github.com/rafaian/vidaPlus---Backend.git
 ```
 
 Instale as dependências:
@@ -69,7 +69,7 @@ Instale as dependências:
 npm install
 ```
 
-Configure o arquivo `.env`:
+Crie um arquivo `.env`:
 
 ```env
 JWT_SECRET=sua_chave_secreta
@@ -81,7 +81,7 @@ Inicie o servidor:
 npm run dev
 ```
 
-## Rotas da API
+## Rotas
 
 ### Usuários
 
